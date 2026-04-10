@@ -29,6 +29,13 @@ function renderNav(moduloActivo) {
 
   el.innerHTML = `
     <div class="nav-wrap">
+      <div class="nav-inicio-row">
+        <a class="nav-item nav-inicio-item ${moduloActivo === 'inicio' ? 'active' : ''}" href="index.html">
+          <div class="nav-icon"><img src="icons/inicio.png" alt="Inicio"></div>
+          <div class="nav-label">Inicio</div>
+        </a>
+        <div class="nav-inicio-sep"></div>
+      </div>
       <div class="nav-tabs-row" id="nav-tabs-row">
         ${NAV_CARPETAS.map((c, i) => {
           const activa = i === idxAbierto;

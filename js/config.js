@@ -58,3 +58,6 @@ const NAV_CARPETAS = [
 
 // MODULOS plano — se mantiene para compatibilidad con código existente
 const MODULOS = NAV_CARPETAS.flatMap(c => c.modulos);
+
+// Icono de Inicio — fuera de carpetas, siempre visible en el nav
+const NAV_INICIO = { id: 'inicio', label: 'Inicio', href: 'index.html', icon: 'icons/inicio.png' };
