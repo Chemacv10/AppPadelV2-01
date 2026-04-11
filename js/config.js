@@ -52,7 +52,7 @@ const NAV_CARPETAS = [
     color: 'naranja',
     modulos: [
       { id: 'finanzas',   label: 'Finanzas',   href: 'finanzas.html',   icon: 'icons/finanzas.png'   },
-      { id: 'stats',      label: 'Estadíst.',  href: 'stats.html',      icon: 'icons/stats.png'      },
+      { id: 'stats',      label: 'Estadísticas', href: 'stats.html',    icon: 'icons/stats.png'      },
     ],
   },
 ];
