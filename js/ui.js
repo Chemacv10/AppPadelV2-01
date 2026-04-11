@@ -58,12 +58,12 @@ function renderNav(moduloActivo) {
         ${NAV_CARPETAS.map((c, i) => {
           const activa = i === idxAbierto;
           const col = COLORES[c.color];
-          return `<div class="nav-tab${activa ? ' nav-tab-active' : ''}"
-            style="border-left-color:${col.color};${activa ? `background:${col.soft};border-top-color:${col.borde};border-right-color:${col.borde};` : ''}"
+          return `<button class="nav-tab${activa ? ' nav-tab-active' : ''}"
+            style="border-left-color:${col.color};${activa ? `background:${col.soft};border-top-color:${col.borde};border-right-color:${col.borde};` : ''}text-align:left;width:100%;font-family:Nunito,sans-serif;"
             onclick="navSelTab(${i})">
             <div class="nav-tab-title" style="${activa ? `color:${col.color}` : ''}">${c.label}</div>
             ${c.sub ? `<div class="nav-tab-sub">${c.sub}</div>` : ''}
-          </div>`;
+          </button>`;
         }).join('')}
       </div>
       <div class="nav-panel-wrap" style="border-color:${colActiva.borde};background:${colActiva.soft};border-radius:${panelRadius}">
