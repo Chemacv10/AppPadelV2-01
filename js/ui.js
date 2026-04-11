@@ -1098,6 +1098,17 @@ document.addEventListener('click', e => {
   }
 });
 
+// Cerrar nsel al hacer scroll (evita que el dropdown se separe del botón)
+function _nselCerrarTodos() {
+  document.querySelectorAll('.nsel-drop').forEach(d => {
+    d.style.display = 'none';
+    const otherId = d.id.replace('-nsel-drop','');
+    const otherArrow = document.getElementById(otherId + '-nsel-arrow');
+    if (otherArrow) otherArrow.style.transform = '';
+  });
+}
+window.addEventListener('scroll', _nselCerrarTodos, true);
+
 // nselSync: llamar tras cambiar innerHTML de un select para re-renderizar
 function nselSync(selId) {
   setTimeout(() => _nselBuild(selId), 0);
