@@ -191,14 +191,13 @@ let _fotoFile    = null;   // File pendiente de subir
 
 // ── Filtros ────────────────────────────────────
 function filtrar() {
-  const q           = (document.getElementById('buscador').value || '').toLowerCase().trim();
-  const filtNivel   = document.getElementById('filtro-nivel')?.value  || '';
-  const filtGrupo   = document.getElementById('filtro-grupo')?.value  || '';
-  const filtEstado  = document.getElementById('filtro-estado')?.value || 'activos';
+  const q          = (document.getElementById('buscador').value || '').toLowerCase().trim();
+  const filtNivel  = document.getElementById('filtro-nivel')?.value  || '';
+  const filtGrupo  = document.getElementById('filtro-grupo')?.value  || '';
+  const filtEstado = document.getElementById('filtro-estado')?.value || 'todos';
 
   const lista = _alumnos
     .filter(a => {
-      // Filtro estado
       if (filtEstado === 'activos'   && a.activo === false) return false;
       if (filtEstado === 'inactivos' && a.activo !== false) return false;
       if (filtNivel && a.nivel !== filtNivel) return false;
@@ -207,7 +206,7 @@ function filtrar() {
       if (!q) return true;
       const grupo = _grupos.find(g => g.id === a.grupo_id);
       const hay = [a.nombre, a.nivel, a.telefono, a.email, grupo?.nombre].filter(Boolean).join(' ').toLowerCase();
-      return !q || q.split(/\s+/).filter(Boolean).some(p => hay.includes(p));
+      return q.split(/\s+/).filter(Boolean).some(p => hay.includes(p));
     })
     .sort((a, b) => {
       // Activos primero, inactivos al final
@@ -574,6 +573,7 @@ async function init() {
   // ── Inicializar selects custom ──
   nselInit('filtro-nivel');
   nselInit('filtro-grupo');
+  nselInit('filtro-estado');
   nselInit('al-grupo');
 }
 
