@@ -70,6 +70,14 @@
           <option value="">Todos</option>
         </select></div>
       </div>
+      <div style="flex:1">
+        <div class="filter-label">Estado</div>
+        <div class="fsel-wrap"><select class="fsel" id="filtro-estado" onchange="filtrar()">
+          <option value="activos">Activos</option>
+          <option value="todos">Todos</option>
+          <option value="inactivos">Bajas</option>
+        </select></div>
+      </div>
     </div>
 
     <div id="lista-alumnos"><div class="loading"><div class="spinner"></div></div></div>
@@ -183,13 +191,17 @@ let _fotoFile    = null;   // File pendiente de subir
 
 // ── Filtros ────────────────────────────────────
 function filtrar() {
-  const q          = (document.getElementById('buscador').value || '').toLowerCase().trim();
-  const filtNivel  = document.getElementById('filtro-nivel')?.value  || '';
-  const filtGrupo  = document.getElementById('filtro-grupo')?.value  || '';
+  const q           = (document.getElementById('buscador').value || '').toLowerCase().trim();
+  const filtNivel   = document.getElementById('filtro-nivel')?.value  || '';
+  const filtGrupo   = document.getElementById('filtro-grupo')?.value  || '';
+  const filtEstado  = document.getElementById('filtro-estado')?.value || 'activos';
 
   const lista = _alumnos
     .filter(a => {
-      if (filtNivel && a.nivel    !== filtNivel) return false;
+      // Filtro estado
+      if (filtEstado === 'activos'   && a.activo === false) return false;
+      if (filtEstado === 'inactivos' && a.activo !== false) return false;
+      if (filtNivel && a.nivel !== filtNivel) return false;
       if (filtGrupo === '__sin_grupo__') { if (a.grupo_id) return false; }
       else if (filtGrupo && a.grupo_id !== filtGrupo) return false;
       if (!q) return true;
@@ -197,7 +209,12 @@ function filtrar() {
       const hay = [a.nombre, a.nivel, a.telefono, a.email, grupo?.nombre].filter(Boolean).join(' ').toLowerCase();
       return !q || q.split(/\s+/).filter(Boolean).some(p => hay.includes(p));
     })
-    .sort((a, b) => a.nombre.localeCompare(b.nombre, 'es'));
+    .sort((a, b) => {
+      // Activos primero, inactivos al final
+      if (a.activo === false && b.activo !== false) return 1;
+      if (a.activo !== false && b.activo === false) return -1;
+      return a.nombre.localeCompare(b.nombre, 'es');
+    });
   renderLista(lista);
 }
 
@@ -214,12 +231,13 @@ function renderLista(alumnos) {
       : avatarHTML(a.nombre);
     const edad = a.fecha_nacimiento ? calcEdad(a.fecha_nacimiento) : null;
 
+    const inactivo = a.activo === false;
     return `
-    <div class="card" id="card-${a.id}" style="border-left-color:${chipColor(a.nivel,'niveles').tx}">
+    <div class="card" id="card-${a.id}" style="border-left-color:${inactivo ? '#94a3b8' : chipColor(a.nivel,'niveles').tx};opacity:${inactivo ? '0.55' : '1'}">
       <div class="card-main" onclick="toggleCard('${a.id}')">
         ${avatarEl}
         <div class="ci">
-          <div class="cn">${a.nombre}</div>
+          <div class="cn">${a.nombre}${inactivo ? ' <span style="font-size:10px;color:#94a3b8;font-weight:700">(Baja)</span>' : ''}</div>
           <div class="cm">
             ${chipNivel(a.nivel)}
             ${grupo ? `<span class="chip" style="background:${chipColor(grupo.nombre).bg};color:${chipColor(grupo.nombre).tx}">${grupo.nombre}</span>` : '<span class="chip cgr">Sin grupo</span>'}
@@ -236,6 +254,10 @@ function renderLista(alumnos) {
         <div class="abtns">
           <button class="abtn" onclick="window.location.href='cobros.html?alumno_id=${a.id}'">💰 Cobros</button>
           <button class="abtn prim" onclick="abrirEditarId('${a.id}')">✏️ Editar</button>
+          ${inactivo
+            ? `<button class="abtn" style="background:#f0fdf4;color:#16a34a;border-color:#bbf7d0" onclick="toggleBaja('${a.id}',true)">✓ Dar alta</button>`
+            : `<button class="abtn" style="background:#fff7ed;color:#f59e0b;border-color:#fde68a" onclick="toggleBaja('${a.id}',false)">⏸ Dar baja</button>`
+          }
           <button class="abtn dang" onclick="confirmarEliminar('${a.id}','${a.nombre.replace(/'/g,"\\'")}')">🗑</button>
         </div>
       </div>
@@ -487,6 +509,20 @@ async function guardar() {
     console.error('Error guardar alumno:', e);
     toast('Error: ' + (e.message || JSON.stringify(e)), 'err');
   }
+}
+
+async function toggleBaja(id, activar) {
+  const nombre = _alumnos.find(a => a.id === id)?.nombre || '';
+  const msg = activar
+    ? `¿Dar de alta a ${nombre}?`
+    : `¿Dar de baja a ${nombre}? Su historial se conservará.`;
+  confirmar(msg, async () => {
+    try {
+      await _sb.from('alumnos').update({ activo: activar }).eq('id', id).eq('escuela_id', Store.escuelaId);
+      toast(activar ? `${nombre} dado de alta ✓` : `${nombre} dado de baja`, 'ok');
+      await cargar();
+    } catch(e) { toast('Error al cambiar estado', 'err'); console.error(e); }
+  });
 }
 
 function confirmarEliminar(id, nombre) {
