@@ -12,94 +12,72 @@ function renderNav(moduloActivo) {
   const el = document.getElementById('nav-container');
   if (!el) return;
 
-  // Detectar qué carpeta contiene el módulo activo
-  const carpetaActiva = NAV_CARPETAS.findIndex(c => c.modulos.some(m => m.id === moduloActivo));
-  const idxActivo = carpetaActiva >= 0 ? carpetaActiva : 0;
-
-  // Guardar última carpeta visitada en sessionStorage
-  if (carpetaActiva >= 0) sessionStorage.setItem('nav_carpeta', carpetaActiva);
-  const idxGuardado = +(sessionStorage.getItem('nav_carpeta') || 0);
-  const idxAbierto = carpetaActiva >= 0 ? carpetaActiva : idxGuardado;
+  // Detectar carpeta activa
+  let idxAbierto = NAV_CARPETAS.findIndex(c => c.modulos.some(m => m.id === moduloActivo));
+  if (idxAbierto < 0) {
+    idxAbierto = +(sessionStorage.getItem('nav_carpeta') || 0);
+  } else {
+    sessionStorage.setItem('nav_carpeta', idxAbierto);
+  }
 
   const COLORES = {
+    gris:    { soft:'#f8fafc', borde:'#e2e8f0', color:'#64748b' },
     azul:    { soft:'#eff6ff', borde:'#bfdbfe', color:'#2563eb' },
     verde:   { soft:'#f0fdf4', borde:'#bbf7d0', color:'#16a34a' },
     naranja: { soft:'#fffbeb', borde:'#fde68a', color:'#f59e0b' },
   };
 
+  // Carpeta activa
+  const cActiva = NAV_CARPETAS[idxAbierto];
+  const colActiva = COLORES[cActiva.color];
+
+  // Panel: grid-columns según num módulos
+  const cols = cActiva.modulos.length === 1 ? 1
+             : cActiva.modulos.length <= 3  ? cActiva.modulos.length
+             : 4;
+
+  // Posición: si es la primera pestaña, esquina sup-izq del panel es plana
+  const panelRadius = idxAbierto === 0
+    ? '0 12px 12px 12px'
+    : idxAbierto === NAV_CARPETAS.length - 1
+      ? '12px 0 12px 12px'
+      : '12px';
+
   el.innerHTML = `
     <div class="nav-wrap">
-      <div class="nav-inicio-row">
-        <a class="nav-item nav-inicio-item ${moduloActivo === 'inicio' ? 'active' : ''}" href="index.html">
-          <div class="nav-icon"><img src="icons/inicio.png" alt="Inicio"></div>
-          <div class="nav-label">Inicio</div>
-        </a>
-        <div class="nav-inicio-sep"></div>
-      </div>
-      <div class="nav-tabs-row" id="nav-tabs-row">
+      <div class="nav-tabs-row">
         ${NAV_CARPETAS.map((c, i) => {
           const activa = i === idxAbierto;
           const col = COLORES[c.color];
-          return `<div class="nav-tab ${activa ? 'nav-tab-active' : ''}"
-            style="${activa ? `background:${col.soft};border-color:${col.borde};border-left:3px solid ${col.color};` : `border-left:3px solid ${col.color};`}"
+          return `<div class="nav-tab${activa ? ' nav-tab-active' : ''}"
+            style="border-left-color:${col.color};${activa ? `background:${col.soft};border-top-color:${col.borde};border-right-color:${col.borde};` : ''}"
             onclick="navSelTab(${i})">
             <div class="nav-tab-title" style="${activa ? `color:${col.color}` : ''}">${c.label}</div>
-            <div class="nav-tab-sub">${c.sub}</div>
+            ${c.sub ? `<div class="nav-tab-sub">${c.sub}</div>` : ''}
           </div>`;
         }).join('')}
       </div>
-      ${NAV_CARPETAS.map((c, i) => {
-        const activa = i === idxAbierto;
-        const col = COLORES[c.color];
-        const cols = c.modulos.length <= 3 ? c.modulos.length : 4;
-        return `<div class="nav-panel ${activa ? 'nav-panel-active nav-panel-pos-'+i : ''}" id="nav-panel-${i}"
-          style="grid-template-columns:repeat(${cols},1fr);${activa ? `background:${col.soft};border-color:${col.borde};` : ''}">
-          ${c.modulos.map(m => `
-            <a class="nav-item ${m.id === moduloActivo ? 'active' : ''}" href="${m.href}">
+      <div class="nav-panel-wrap" style="border-color:${colActiva.borde};background:${colActiva.soft};border-radius:${panelRadius}">
+        <div style="display:grid;grid-template-columns:repeat(${cols},1fr);gap:6px">
+          ${cActiva.modulos.map(m => `
+            <a class="nav-item${m.id === moduloActivo ? ' active' : ''}" href="${m.href}">
               <div class="nav-icon"><img src="${m.icon}" alt="${m.label}"></div>
               <div class="nav-label">${m.label}</div>
             </a>`).join('')}
-        </div>`;
-      }).join('')}
+        </div>
+      </div>
     </div>`;
 
-  // Guardar ref para navSelTab
   el._moduloActivo = moduloActivo;
 }
 
 function navSelTab(idx) {
+  sessionStorage.setItem('nav_carpeta', idx);
   const el = document.getElementById('nav-container');
   if (!el) return;
-  sessionStorage.setItem('nav_carpeta', idx);
-  // Re-renderizar con nueva carpeta abierta
-  const modulo = el._moduloActivo || '';
-  // Forzar re-render respetando el módulo activo
-  const COLORES = {
-    azul:    { soft:'#eff6ff', borde:'#bfdbfe', color:'#2563eb' },
-    verde:   { soft:'#f0fdf4', borde:'#bbf7d0', color:'#16a34a' },
-    naranja: { soft:'#fffbeb', borde:'#fde68a', color:'#f59e0b' },
-  };
-  NAV_CARPETAS.forEach((c, i) => {
-    const tab   = document.querySelector(`#nav-container .nav-tab:nth-child(${i+1})`);
-    const panel = document.getElementById('nav-panel-'+i);
-    const col   = COLORES[c.color];
-    const activa = i === idx;
-    if (tab) {
-      tab.className = 'nav-tab' + (activa ? ' nav-tab-active' : '');
-      tab.style.cssText = activa
-        ? `background:${col.soft};border-color:${col.borde};border-left:3px solid ${col.color};`
-        : `border-left:3px solid ${col.color};`;
-      tab.querySelector('.nav-tab-title').style.color = activa ? col.color : '';
-    }
-    if (panel) {
-      const gtc = panel.style.gridTemplateColumns;
-      panel.className = 'nav-panel' + (activa ? ` nav-panel-active nav-panel-pos-${i}` : '');
-      panel.style.cssText = activa
-        ? `grid-template-columns:${gtc};background:${col.soft};border-color:${col.borde};`
-        : `grid-template-columns:${gtc};`;
-    }
-  });
+  renderNav(el._moduloActivo || '');
 }
+
 
 // ── Header ────────────────────────────────────
 
