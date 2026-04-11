@@ -19,14 +19,15 @@ const COLOR = {
 const NIVELES_DEFAULT = ['Principiante', 'Intermedio', 'Avanzado'];
 
 // Módulos con sus rutas
-// Carpetas del nav — 3 pestañas desplegables
+// Carpetas del nav — 3 pestañas
 const NAV_CARPETAS = [
   {
-    id:    'equipo',
-    label: 'Tu Equipo',
+    id:    'inicio',
+    label: 'Inicio',
     sub:   'Alumnos · Grupos · Monitores',
     color: 'azul',
     modulos: [
+      { id: 'inicio',     label: 'Inicio',     href: 'index.html',      icon: 'icons/inicio.png'     },
       { id: 'alumnos',    label: 'Alumnos',    href: 'alumnos.html',    icon: 'icons/alumnos.png'    },
       { id: 'grupos',     label: 'Grupos',     href: 'grupos.html',     icon: 'icons/grupos.png'     },
       { id: 'monitores',  label: 'Monitores',  href: 'monitores.html',  icon: 'icons/monitores.png'  },
@@ -35,13 +36,13 @@ const NAV_CARPETAS = [
   {
     id:    'pista',
     label: 'En Pista',
-    sub:   'Clases · Ejercicios · Pistas · Torneos',
+    sub:   'Clases · Ejercicios · Torneos · Pistas',
     color: 'verde',
     modulos: [
       { id: 'clases',     label: 'Clases',     href: 'clases.html',     icon: 'icons/clases.png'     },
       { id: 'ejercicios', label: 'Ejercicios', href: 'ejercicios.html', icon: 'icons/ejercicios.png' },
-      { id: 'pistas',     label: 'Pistas',     href: 'pistas.html',     icon: 'icons/pistas.png'     },
       { id: 'torneos',    label: 'Torneos',    href: 'torneos.html',    icon: 'icons/torneos.png'    },
+      { id: 'pistas',     label: 'Pistas',     href: 'pistas.html',     icon: 'icons/pistas.png'     },
     ],
   },
   {
@@ -56,8 +57,5 @@ const NAV_CARPETAS = [
   },
 ];
 
-// MODULOS plano — se mantiene para compatibilidad con código existente
+// MODULOS plano — compatibilidad
 const MODULOS = NAV_CARPETAS.flatMap(c => c.modulos);
-
-// Icono de Inicio — fuera de carpetas, siempre visible en el nav
-const NAV_INICIO = { id: 'inicio', label: 'Inicio', href: 'index.html', icon: 'icons/inicio.png' };
