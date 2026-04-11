@@ -753,7 +753,9 @@ nav, .nav {
                 min-width: 220px; max-width: calc(100vw - 24px); width: max-content;
                 background: #fff; border: 2px solid #bfdbfe; border-radius: 12px;
                 z-index: 600; box-shadow: 0 8px 24px rgba(15,23,42,.14);
-                overflow: hidden; max-height: 260px; overflow-y: auto; }
+                overflow: hidden; max-height: 260px; overflow-y: auto;
+                overscroll-behavior: contain;
+                -webkit-overflow-scrolling: touch; }
 .nsel-item    { display: flex; align-items: center; gap: 10px; padding: 10px 14px;
                 border-bottom: 1px solid #dbeafe; cursor: pointer; transition: background .1s; }
 .nsel-item:last-child { border-bottom: none; }
