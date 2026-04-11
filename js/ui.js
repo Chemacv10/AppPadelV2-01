@@ -1052,8 +1052,24 @@ function nselToggle(selId) {
     if (left < 8) left = 8;
 
     drop.style.left  = left + 'px';
-    drop.style.top   = (rect.bottom + 4) + 'px';
     drop.style.width = naturalW + 'px';
+
+    // Calcular altura disponible abajo y arriba
+    const maxH       = 260; // max-height del dropdown
+    const spaceBelow = window.innerHeight - rect.bottom - 8;
+    const spaceAbove = rect.top - 8;
+
+    if (spaceBelow >= Math.min(maxH, 120) || spaceBelow >= spaceAbove) {
+      // Cabe abajo o hay más espacio abajo: abrir hacia abajo
+      drop.style.top    = (rect.bottom + 4) + 'px';
+      drop.style.bottom = 'auto';
+      drop.style.maxHeight = Math.max(spaceBelow, 120) + 'px';
+    } else {
+      // Más espacio arriba: abrir hacia arriba
+      drop.style.bottom = (window.innerHeight - rect.top + 4) + 'px';
+      drop.style.top    = 'auto';
+      drop.style.maxHeight = Math.max(spaceAbove, 120) + 'px';
+    }
   }
   drop.style.display = open ? 'block' : 'none';
   if (arrow) arrow.style.transform = open ? 'rotate(180deg)' : '';
