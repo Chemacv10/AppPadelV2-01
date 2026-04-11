@@ -134,6 +134,11 @@ nav, .nav {
   background: #f8fafc;
   user-select: none;
   transition: background .15s;
+  /* reset button styles */
+  -webkit-appearance: none;
+  appearance: none;
+  outline: none;
+  box-shadow: none;
 }
 .nav-tab-active { /* color aplicado inline */ }
 .nav-tab-title {
