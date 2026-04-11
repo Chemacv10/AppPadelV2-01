@@ -106,12 +106,13 @@ input, select, textarea { font-family: Nunito, sans-serif; }
 /* ── Navegación ──────────────────────────────── */
 /* ── Nav ── */
 nav, .nav {
+  display: block;
   background: var(--card);
   border-top: 1.5px solid var(--borde);
   border-bottom: 1.5px solid var(--borde);
   flex-shrink: 0;
 }
-.nav-wrap { padding: 8px 10px 10px; }
+.nav-wrap { padding: 8px 10px 10px; display: block; }
 
 /* Fila de pestañas */
 .nav-tabs-row {
