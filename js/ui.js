@@ -1098,18 +1098,17 @@ document.addEventListener('click', e => {
   }
 });
 
-// Cerrar nsel al hacer scroll en la PÁGINA (no dentro del propio dropdown)
-function _nselCerrarTodos(e) {
-  // Si el scroll ocurre dentro de un nsel-drop, no cerrar
-  if (e.target && e.target.closest && e.target.closest('.nsel-drop')) return;
+// Cerrar nsel al hacer scroll en la página (no en el propio dropdown)
+window.addEventListener('scroll', function _nselCerrarTodos(e) {
+  if (e.target instanceof Element && e.target.closest('.nsel-drop')) return;
   document.querySelectorAll('.nsel-drop').forEach(d => {
+    if (d.style.display === 'none') return;
     d.style.display = 'none';
     const otherId = d.id.replace('-nsel-drop','');
     const otherArrow = document.getElementById(otherId + '-nsel-arrow');
     if (otherArrow) otherArrow.style.transform = '';
   });
-}
-window.addEventListener('scroll', _nselCerrarTodos, true);
+}, true);
 
 // nselSync: llamar tras cambiar innerHTML de un select para re-renderizar
 function nselSync(selId) {
