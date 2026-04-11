@@ -1098,8 +1098,10 @@ document.addEventListener('click', e => {
   }
 });
 
-// Cerrar nsel al hacer scroll (evita que el dropdown se separe del botón)
-function _nselCerrarTodos() {
+// Cerrar nsel al hacer scroll en la PÁGINA (no dentro del propio dropdown)
+function _nselCerrarTodos(e) {
+  // Si el scroll ocurre dentro de un nsel-drop, no cerrar
+  if (e.target && e.target.closest && e.target.closest('.nsel-drop')) return;
   document.querySelectorAll('.nsel-drop').forEach(d => {
     d.style.display = 'none';
     const otherId = d.id.replace('-nsel-drop','');
