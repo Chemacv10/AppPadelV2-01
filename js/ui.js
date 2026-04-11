@@ -12,12 +12,21 @@ function renderNav(moduloActivo) {
   const el = document.getElementById('nav-container');
   if (!el) return;
 
-  // Detectar carpeta activa
-  let idxAbierto = NAV_CARPETAS.findIndex(c => c.modulos.some(m => m.id === moduloActivo));
-  if (idxAbierto < 0) {
-    idxAbierto = +(sessionStorage.getItem('nav_carpeta') || 0);
+  // Si el usuario tocó una pestaña manualmente (_navForzado), esa tiene prioridad
+  // Si no, usar la carpeta que contiene el módulo activo
+  // Si el módulo no está en ninguna carpeta, usar sessionStorage
+  let idxAbierto;
+  if (typeof _navForzado === 'number') {
+    idxAbierto = _navForzado;
+    _navForzado = null;
   } else {
-    sessionStorage.setItem('nav_carpeta', idxAbierto);
+    const idxModulo = NAV_CARPETAS.findIndex(c => c.modulos.some(m => m.id === moduloActivo));
+    if (idxModulo >= 0) {
+      idxAbierto = idxModulo;
+      sessionStorage.setItem('nav_carpeta', idxAbierto);
+    } else {
+      idxAbierto = +(sessionStorage.getItem('nav_carpeta') || 0);
+    }
   }
 
   const COLORES = {
@@ -71,8 +80,10 @@ function renderNav(moduloActivo) {
   el._moduloActivo = moduloActivo;
 }
 
+let _navForzado = null;
 function navSelTab(idx) {
   sessionStorage.setItem('nav_carpeta', idx);
+  _navForzado = idx;
   const el = document.getElementById('nav-container');
   if (!el) return;
   renderNav(el._moduloActivo || '');
