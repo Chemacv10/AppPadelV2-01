@@ -250,6 +250,9 @@ function renderLista(alumnos) {
         <div class="dl">Email</div><div class="dv">${a.email || '—'}</div>
         <div class="dl">Nacimiento</div><div class="dv">${a.fecha_nacimiento ? formatFechaNac(a.fecha_nacimiento)+(edad?' ('+edad+' años)':''): '—'}</div>
         <div class="dl">Grupo</div><div class="dv">${grupo ? grupo.nombre : 'Sin grupo'}</div>
+        <!-- Historial — se carga lazy al abrir -->
+        <div id="hist-${a.id}" style="margin-top:6px"></div>
+
         <div class="abtns">
           <button class="abtn" onclick="window.location.href='cobros.html?alumno_id=${a.id}'">💰 Cobros</button>
           <button class="abtn prim" onclick="abrirEditarId('${a.id}')">✏️ Editar</button>
@@ -556,6 +559,91 @@ async function cargarGrupos() {
 }
 
 // ── Init ───────────────────────────────────────
+// ── Historial ─────────────────────────────────
+// Sobreescribe toggleCard de ui.js para cargar historial lazy
+function toggleCard(id) {
+  const exp   = document.getElementById('exp-'  + id);
+  const chev  = document.getElementById('chev-' + id);
+  const card  = document.getElementById('card-' + id);
+  if (!exp) return;
+  const abierta = exp.classList.toggle('open');
+  if (chev) chev.classList.toggle('open', abierta);
+  if (card) card.classList.toggle('card-open', abierta);
+  if (abierta) cargarHistorial(id);
+}
+
+async function cargarHistorial(alumnoId) {
+  const el = document.getElementById('hist-' + alumnoId);
+  if (!el || el.dataset.cargado) return;
+  el.dataset.cargado = '1';
+  el.innerHTML = '<div style="font-size:11px;color:#94a3b8;padding:6px 0">Cargando historial…</div>';
+
+  try {
+    const anioActual = new Date().getFullYear();
+    const [cobros, clases] = await Promise.all([
+      getCobrosAlumno(alumnoId),
+      // Buscar asistencias del alumno
+      _sb.from('clase_asistencia')
+        .select('asistio, clases(fecha, hora, grupos(nombre))')
+        .eq('alumno_id', alumnoId)
+        .order('clase_id', { ascending: false })
+        .limit(5)
+        .then(r => r.data || [])
+    ]);
+
+    const MESES = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+    function fmtFecha(iso) {
+      if (!iso) return '—';
+      const d = new Date(iso + 'T00:00:00');
+      return `${d.getDate()} ${MESES[d.getMonth()]} ${d.getFullYear()}`;
+    }
+
+    // Últimos 5 cobros
+    const cobrosHtml = cobros.slice(0,5).map(c => {
+      const color = c.importe > 0 ? '#16a34a' : '#e05a5a';
+      return `<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid #f1f5f9">
+        <div style="flex:1">
+          <div style="font-size:11px;font-weight:800;color:#1e293b">${c.tipo||'Cobro'} ${c.mes ? '· '+c.mes : ''}</div>
+          <div style="font-size:10px;color:#94a3b8;font-weight:600">${fmtFecha(c.fecha)}</div>
+        </div>
+        <div style="font-size:12px;font-weight:900;color:${color}">${c.importe > 0 ? '+' : ''}${c.importe?.toFixed(2)}€</div>
+      </div>`;
+    }).join('') || '<div style="font-size:11px;color:#94a3b8;padding:4px 0">Sin cobros registrados</div>';
+
+    // Últimas 5 asistencias
+    const asistHtml = clases.slice(0,5).map(r => {
+      const clase = r.clases;
+      if (!clase) return '';
+      const ico   = r.asistio ? '✅' : '❌';
+      const grupo = clase.grupos?.nombre || 'Clase';
+      return `<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid #f1f5f9">
+        <div style="font-size:14px">${ico}</div>
+        <div style="flex:1">
+          <div style="font-size:11px;font-weight:800;color:#1e293b">${grupo}</div>
+          <div style="font-size:10px;color:#94a3b8;font-weight:600">${fmtFecha(clase.fecha)}${clase.hora ? ' · '+clase.hora.slice(0,5) : ''}</div>
+        </div>
+      </div>`;
+    }).join('') || '<div style="font-size:11px;color:#94a3b8;padding:4px 0">Sin asistencias registradas</div>';
+
+    el.innerHTML = `
+      <div style="margin-bottom:10px">
+        <div style="font-size:10px;font-weight:900;color:#2563eb;text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px;display:flex;align-items:center;gap:6px">
+          <span>💰 Últimos cobros</span>
+        </div>
+        <div style="background:#f8fafc;border-radius:10px;padding:4px 10px">${cobrosHtml}</div>
+      </div>
+      <div style="margin-bottom:8px">
+        <div style="font-size:10px;font-weight:900;color:#2563eb;text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px">
+          📋 Últimas clases
+        </div>
+        <div style="background:#f8fafc;border-radius:10px;padding:4px 10px">${asistHtml}</div>
+      </div>`;
+  } catch(e) {
+    el.innerHTML = '<div style="font-size:11px;color:#e05a5a;padding:4px 0">Error al cargar historial</div>';
+    console.error(e);
+  }
+}
+
 async function init() {
   renderNav('alumnos');
   await initStore();
