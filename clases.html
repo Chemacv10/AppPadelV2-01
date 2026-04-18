@@ -239,49 +239,59 @@
           </div>
           <div class="fgrp">
             <div class="flbl">Hora</div>
-            <div class="hora-row">
-              <div class="hpick-wrap">
-                <div class="hpick-box" id="cl-h-box">
-                  <button class="hpick-btn" onclick="hpickStep('cl-h',-1)">‹</button>
-                  <div class="hpick-val" id="cl-h-val" onclick="hpickToggle('cl-h')">10<span class="hpick-val-arrow">∨</span></div>
-                  <button class="hpick-btn" onclick="hpickStep('cl-h',1)">›</button>
-                </div>
-                <div class="hpick-drop" id="cl-h-drop"></div>
-              </div>
-              <div class="hora-sep">:</div>
-              <div class="hpick-wrap">
-                <div class="hpick-box" id="cl-m-box">
-                  <button class="hpick-btn" onclick="hpickStep('cl-m',-1)">‹</button>
-                  <div class="hpick-val" id="cl-m-val" onclick="hpickToggle('cl-m')">00<span class="hpick-val-arrow">∨</span></div>
-                  <button class="hpick-btn" onclick="hpickStep('cl-m',1)">›</button>
-                </div>
-                <div class="hpick-drop" id="cl-m-drop"></div>
-              </div>
-            </div>
+            <input class="finp" type="time" id="cl-hora">
           </div>
         </div>
-        <div class="fgrp">
-          <div class="flbl">Duración</div>
-          <div class="fsel-wrap"><select class="fsel" id="cl-duracion">
-            <option value="60">60 min</option>
-            <option value="90">90 min</option>
-            <option value="120">120 min</option>
-          </select></div>
-        </div>
-        <div class="fgrp">
-          <div class="flbl">Observaciones</div>
-          <input class="finp" id="cl-notas" placeholder="Notas sobre la clase…">
-        </div>
-        <!-- Pista v1-11 -->
+        <!-- Duración + Pista en la misma fila -->
         <div class="frow">
+          <div class="fgrp">
+            <div class="flbl">Duración</div>
+            <div class="fsel-wrap"><select class="fsel" id="cl-duracion">
+            <option value="30">30 min</option>
+            <option value="35">35 min</option>
+            <option value="40">40 min</option>
+            <option value="45">45 min</option>
+            <option value="50">50 min</option>
+            <option value="55">55 min</option>
+            <option value="60">60 min</option>
+            <option value="65">65 min</option>
+            <option value="70">70 min</option>
+            <option value="75">75 min</option>
+            <option value="80">80 min</option>
+            <option value="85">85 min</option>
+            <option value="90">90 min</option>
+            <option value="95">95 min</option>
+            <option value="100">100 min</option>
+            <option value="105">105 min</option>
+            <option value="110">110 min</option>
+            <option value="115">115 min</option>
+            <option value="120">120 min</option>
+            <option value="125">125 min</option>
+            <option value="130">130 min</option>
+            <option value="135">135 min</option>
+            <option value="140">140 min</option>
+            <option value="145">145 min</option>
+            <option value="150">150 min</option>
+            <option value="155">155 min</option>
+            <option value="160">160 min</option>
+            <option value="165">165 min</option>
+            <option value="170">170 min</option>
+            <option value="175">175 min</option>
+            <option value="180">180 min</option>
+            </select></div>
+          </div>
           <div class="fgrp">
             <div class="flbl">Pista</div>
             <div class="csel-wrap" id="cl-pista-csel"></div>
           </div>
-          <div class="fgrp" id="bloque-auto-wrap" style="display:none">
-            <div class="flbl" style="font-size:10px">Bloque automático</div>
-            <div id="bloque-auto-info" style="font-size:11px;font-weight:700;color:var(--azul);background:#eff6ff;border-radius:9px;padding:7px 10px;line-height:1.4"></div>
-          </div>
+        </div>
+        <div class="fgrp" id="bloque-auto-wrap" style="display:none">
+          <div class="flbl" style="font-size:10px">Bloque automático</div>
+          <div id="bloque-auto-info" style="font-size:11px;font-weight:700;color:var(--azul);background:#eff6ff;border-radius:9px;padding:7px 10px;line-height:1.4"></div>
+        </div>
+        <div class="fgrp">
+          <div class="flbl">Observaciones</div>
+          <input class="finp" id="cl-notas" placeholder="Notas sobre la clase…">
         </div>
         <div class="wizard-btns">
           <button class="wbtn" onclick="cerrarWizard()">✕ Cancelar</button>
@@ -512,8 +522,8 @@ function fillTipoClaseSelect(val) {
   );
 }
 
-function getHora(){return String(_hpick['cl-h'].val).padStart(2,'0')+':'+String(_hpick['cl-m'].val).padStart(2,'0')}
-function setHora(s){if(!s)return;const[h,m]=s.split(':').map(Number);_hpick['cl-h'].val=isNaN(h)?10:Math.min(23,Math.max(0,h));_hpick['cl-m'].val=isNaN(m)?0:Math.round(m/5)*5%60;_hpickRender('cl-h');_hpickRender('cl-m');}
+function getHora(){return document.getElementById('cl-hora')?.value||'10:00';}
+function setHora(s){const el=document.getElementById('cl-hora');if(el&&s)el.value=s.slice(0,5);}
 
 function filtrar(){
   const q=(document.getElementById('buscador')?.value||'').toLowerCase().trim();
@@ -639,6 +649,7 @@ function abrirEditar(c){
   fillTipoClaseSelect(c.tipo_clase||'Grupo');
   document.getElementById('cl-notas').value=c.notas||'';
   document.getElementById('cl-duracion').value=String(c.duracion||60);
+  nselSync('cl-duracion');
   setHora(c.hora||'10:00');
   if(!ESTADOS_SIMPLES.includes(c.estado)){
     _bloques=(c.clase_ejercicios||[]).map(b=>({ejercicio_id:b.ejercicio_id,nombre:b.ejercicios?.nombre||'',categoria:b.ejercicios?.categoria||'',orden:b.orden,duracion:b.duracion||'15 min',realizado:b.realizado!==false}));
