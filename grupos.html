@@ -180,75 +180,76 @@
         </div>
       </div>
 
-      <!-- Hora inicio -->
-      <div class="fgrp">
-        <div class="flbl">Hora inicio</div>
-        <div class="hpick-row">
-          <div class="hpick-wrap">
-            <div class="hpick-box" id="ini-h-box">
-              <button class="hpick-btn" onclick="hpickStep('ini-h',-1)">‹</button>
-              <div class="hpick-val" id="ini-h-val" onclick="hpickToggle('ini-h')">10<span class="hpick-val-arrow">∨</span></div>
-              <button class="hpick-btn" onclick="hpickStep('ini-h',1)">›</button>
+      <!-- Hora inicio + Hora fin en una fila -->
+      <div class="frow">
+        <div class="fgrp">
+          <div class="flbl">Hora inicio</div>
+          <div class="hpick-row">
+            <div class="hpick-wrap">
+              <div class="hpick-box" id="ini-h-box">
+                <button class="hpick-btn" onclick="hpickStep('ini-h',-1)">‹</button>
+                <div class="hpick-val" id="ini-h-val" onclick="hpickToggle('ini-h')">10<span class="hpick-val-arrow">∨</span></div>
+                <button class="hpick-btn" onclick="hpickStep('ini-h',1)">›</button>
+              </div>
+              <div class="hpick-drop" id="ini-h-drop"></div>
             </div>
-            <div class="hpick-drop" id="ini-h-drop"></div>
+            <div class="hpick-sep">:</div>
+            <div class="hpick-wrap">
+              <div class="hpick-box" id="ini-m-box">
+                <button class="hpick-btn" onclick="hpickStep('ini-m',-1)">‹</button>
+                <div class="hpick-val" id="ini-m-val" onclick="hpickToggle('ini-m')">00<span class="hpick-val-arrow">∨</span></div>
+                <button class="hpick-btn" onclick="hpickStep('ini-m',1)">›</button>
+              </div>
+              <div class="hpick-drop" id="ini-m-drop"></div>
+            </div>
           </div>
-          <div class="hpick-sep">:</div>
-          <div class="hpick-wrap">
-            <div class="hpick-box" id="ini-m-box">
-              <button class="hpick-btn" onclick="hpickStep('ini-m',-1)">‹</button>
-              <div class="hpick-val" id="ini-m-val" onclick="hpickToggle('ini-m')">00<span class="hpick-val-arrow">∨</span></div>
-              <button class="hpick-btn" onclick="hpickStep('ini-m',1)">›</button>
+        </div>
+        <div class="fgrp">
+          <div class="flbl">Hora fin</div>
+          <div class="hpick-row">
+            <div class="hpick-wrap">
+              <div class="hpick-box" id="fin-h-box">
+                <button class="hpick-btn" onclick="hpickStep('fin-h',-1)">‹</button>
+                <div class="hpick-val" id="fin-h-val" onclick="hpickToggle('fin-h')">11<span class="hpick-val-arrow">∨</span></div>
+                <button class="hpick-btn" onclick="hpickStep('fin-h',1)">›</button>
+              </div>
+              <div class="hpick-drop" id="fin-h-drop"></div>
             </div>
-            <div class="hpick-drop" id="ini-m-drop"></div>
+            <div class="hpick-sep">:</div>
+            <div class="hpick-wrap">
+              <div class="hpick-box" id="fin-m-box">
+                <button class="hpick-btn" onclick="hpickStep('fin-m',-1)">‹</button>
+                <div class="hpick-val" id="fin-m-val" onclick="hpickToggle('fin-m')">30<span class="hpick-val-arrow">∨</span></div>
+                <button class="hpick-btn" onclick="hpickStep('fin-m',1)">›</button>
+              </div>
+              <div class="hpick-drop" id="fin-m-drop"></div>
+            </div>
           </div>
         </div>
       </div>
 
-      <!-- Hora fin -->
-      <div class="fgrp">
-        <div class="flbl">Hora fin</div>
-        <div class="hpick-row">
-          <div class="hpick-wrap">
-            <div class="hpick-box" id="fin-h-box">
-              <button class="hpick-btn" onclick="hpickStep('fin-h',-1)">‹</button>
-              <div class="hpick-val" id="fin-h-val" onclick="hpickToggle('fin-h')">11<span class="hpick-val-arrow">∨</span></div>
-              <button class="hpick-btn" onclick="hpickStep('fin-h',1)">›</button>
-            </div>
-            <div class="hpick-drop" id="fin-h-drop"></div>
-          </div>
-          <div class="hpick-sep">:</div>
-          <div class="hpick-wrap">
-            <div class="hpick-box" id="fin-m-box">
-              <button class="hpick-btn" onclick="hpickStep('fin-m',-1)">‹</button>
-              <div class="hpick-val" id="fin-m-val" onclick="hpickToggle('fin-m')">30<span class="hpick-val-arrow">∨</span></div>
-              <button class="hpick-btn" onclick="hpickStep('fin-m',1)">›</button>
-            </div>
-            <div class="hpick-drop" id="fin-m-drop"></div>
-          </div>
+      <!-- Pista + Monitor en una fila -->
+      <div class="frow">
+        <div class="fgrp">
+          <div class="flbl">Pista</div>
+          <div class="csel-wrap" id="gr-pista-csel"></div>
+        </div>
+        <div class="fgrp">
+          <div class="flbl">Monitor</div>
+          <div class="csel-wrap" id="gr-monitor-csel"></div>
         </div>
       </div>
 
-      <!-- Pista -->
-      <div class="fgrp">
-        <div class="flbl">Pista</div>
-        <div class="csel-wrap" id="gr-pista-csel"></div>
-      </div>
-
-      <!-- Monitor -->
-      <div class="fgrp">
-        <div class="flbl">Monitor</div>
-        <div class="csel-wrap" id="gr-monitor-csel"></div>
-      </div>
-
-      <!-- Importe mensual -->
-      <div class="fgrp">
-        <div class="flbl">Importe mensual (€) <span style="font-weight:600;color:var(--sutil);font-size:11px">— 0 = sin cobros automáticos</span></div>
-        <input class="finp" id="gr-importe" type="number" placeholder="0" step="0.01" min="0" style="max-width:160px">
-      </div>
-
-      <div class="fgrp">
-        <div class="flbl">Máximo de alumnos <span style="font-weight:600;color:var(--sutil);font-size:11px">— 0 = sin límite</span></div>
-        <input class="finp" id="gr-max-alumnos" type="number" placeholder="0" min="0" max="20" style="max-width:120px">
+      <!-- Importe + Máximo en una fila -->
+      <div class="frow">
+        <div class="fgrp">
+          <div class="flbl">Cuota mensual (€)</div>
+          <input class="finp" id="gr-importe" type="number" placeholder="0" step="0.01" min="0">
+        </div>
+        <div class="fgrp">
+          <div class="flbl">Máx. alumnos</div>
+          <input class="finp" id="gr-max-alumnos" type="number" placeholder="0" min="0" max="20">
+        </div>
       </div>
 
       <div class="sheet-btns">
