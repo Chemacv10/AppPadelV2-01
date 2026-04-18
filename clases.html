@@ -375,7 +375,7 @@
         <!-- Monitor -->
         <div class="fgrp">
           <div class="flbl">Monitor</div>
-          <input class="finp" id="rp-monitor" placeholder="Nombre del monitor (opcional)">
+          <div class="csel-wrap" id="rp-monitor-csel"></div>
         </div>
 
         <!-- Info semana -->
@@ -467,6 +467,7 @@
 let _clases=[],_grupos=[],_ejercicios={},_estadoSel='Programada',_bloques=[],_editId=null;
 let _cfgTiposClase=['Grupo','Particular','Clase-partido','Libre'];
 let _cfgPistas=[];
+let _cfgMonitores=[];
 
 function _renderPistaCsel(pistaActual) {
   cselRender('cl-pista-csel',
@@ -688,13 +689,24 @@ async function cargarAsistencia(){
   const todosAlumnos=await getAlumnos();
   let alumnos;
   if (grupoId) {
-    // Clase de grupo: alumnos de ese grupo
-    alumnos = todosAlumnos.filter(a=>a.grupo_id===grupoId);
+    // Primero intentar por relación N:M (alumno_grupos)
+    try {
+      const miembros = await getAlumnosDeGrupo(grupoId);
+      if (miembros && miembros.length) {
+        const ids = new Set(miembros.map(a => a.id));
+        alumnos = todosAlumnos.filter(a => ids.has(a.id));
+      } else {
+        // Fallback: campo grupo_id directo en alumnos
+        alumnos = todosAlumnos.filter(a => a.grupo_id === grupoId);
+      }
+    } catch(e) {
+      alumnos = todosAlumnos.filter(a => a.grupo_id === grupoId);
+    }
+    // Si aún vacío, mostrar todos
+    if (!alumnos.length) alumnos = todosAlumnos;
   } else {
-    // Clase particular / sin grupo: alumnos sin grupo asignado
-    // Si no hay ninguno sin grupo, mostramos todos para no dejar la lista vacía
-    const sinGrupo = todosAlumnos.filter(a=>!a.grupo_id);
-    alumnos = sinGrupo.length ? sinGrupo : todosAlumnos;
+    // Clase sin grupo: mostrar todos
+    alumnos = todosAlumnos;
   }
   let asistPrev={};
   if(_editId){const c=_clases.find(x=>x.id===_editId);(c?.clase_asistencia||[]).forEach(a=>asistPrev[a.alumno_id]=a.asistio)}
@@ -923,9 +935,19 @@ async function abrirSheetReservaPista(clase) {
   document.getElementById('rp-hora-inicio').textContent = clase.hora?.slice(0,5)||'—';
   document.getElementById('rp-hora-fin').textContent = horaFin||'—';
 
-  // Monitor del grupo
+  // Monitor del grupo — csel con lista de monitores
   const grupo = _grupos.find(g=>g.id===clase.grupo_id);
-  document.getElementById('rp-monitor').value = grupo?.monitor||'';
+  const monitorActual = grupo?.monitor || '';
+  cselRender(
+    'rp-monitor-csel',
+    ['— Sin monitor —', ..._cfgMonitores],
+    _cfgMonitores.includes(monitorActual) ? monitorActual : '— Sin monitor —',
+    '— Sin monitor —',
+    null,
+    (val, lista) => { _cfgMonitores = lista.filter(x=>x!=='— Sin monitor —'); saveConfig('monitores', _cfgMonitores).catch(console.error); },
+    (val, lista) => { _cfgMonitores = lista.filter(x=>x!=='— Sin monitor —'); saveConfig('monitores', _cfgMonitores).catch(console.error); },
+    '+ Añadir monitor…'
+  );
 
   // Info semana
   const infoEl = document.getElementById('rp-semana-info');
@@ -955,7 +977,8 @@ async function confirmarReservaPista() {
   const pista = document.getElementById('rp-pista').value;
   if(!pista){ toast('Selecciona una pista','warn'); return; }
 
-  const monitor = document.getElementById('rp-monitor').value.trim()||null;
+  const monitorVal = cselGetValue('rp-monitor-csel');
+  const monitor = (monitorVal && monitorVal !== '— Sin monitor —') ? monitorVal : null;
   const horaFin = _calcHoraFin(_rpClase.hora, _rpClase.duracion||60);
   const fecha = _rpClase.fecha;
 
@@ -1125,8 +1148,9 @@ async function init(){
   renderNav('clases');
   await initStore();
   renderHeader({titulo:'Escuela de Pádel',subtitulo:'Clases',icono:'icons/clases.png',botonDerecho:'menu'});
-  const cfgClase = await getConfigMultiple(['tipos_clase','pistas']);
-  _cfgPistas = cfgClase.pistas || [];
+  const cfgClase = await getConfigMultiple(['tipos_clase','pistas','monitores']);
+  _cfgPistas    = cfgClase.pistas    || [];
+  _cfgMonitores = cfgClase.monitores || [];
   if (cfgClase.tipos_clase && cfgClase.tipos_clase.length) _cfgTiposClase = cfgClase.tipos_clase;
   fillTipoClaseSelect('Grupo');
   // Inicializar csel pista (vacío hasta que se abra el wizard)
