@@ -246,6 +246,11 @@
         <input class="finp" id="gr-importe" type="number" placeholder="0" step="0.01" min="0" style="max-width:160px">
       </div>
 
+      <div class="fgrp">
+        <div class="flbl">Máximo de alumnos <span style="font-weight:600;color:var(--sutil);font-size:11px">— 0 = sin límite</span></div>
+        <input class="finp" id="gr-max-alumnos" type="number" placeholder="0" min="0" max="20" style="max-width:120px">
+      </div>
+
       <div class="sheet-btns">
         <button class="sbtn" onclick="closeSheet('sh-grupo')">Cancelar</button>
         <button class="sbtn prim" onclick="guardar()">✓ Guardar</button>
@@ -551,6 +556,16 @@ function renderLista(grupos) {
 
     const alumnos  = _alumnosGrupo[g.id] || [];
     const nAlumnos = alumnos.length;
+    const maxAl    = g.max_alumnos || 0;
+    const lleno    = maxAl > 0 && nAlumnos >= maxAl;
+    const casiLleno= maxAl > 0 && nAlumnos >= maxAl - 1 && !lleno;
+    const chipCupo = maxAl > 0
+      ? lleno
+        ? `<span class="chip" style="background:#fee2e2;color:#b91c1c">🔴 Lleno ${nAlumnos}/${maxAl}</span>`
+        : casiLleno
+          ? `<span class="chip" style="background:#fef9c3;color:#92400e">🟡 Casi lleno ${nAlumnos}/${maxAl}</span>`
+          : `<span class="chip" style="background:#dcfce7;color:#15803d">🟢 ${maxAl - nAlumnos} plaza${maxAl-nAlumnos!==1?'s':''} libre${maxAl-nAlumnos!==1?'s':''}</span>`
+      : '';
 
     return `
     <div class="card" id="card-${g.id}" style="border-left-color:${color}">
@@ -562,6 +577,7 @@ function renderLista(grupos) {
             ${chipNivel(g.nivel)}
             ${g.pista   ? chipPista(g.pista)     : ''}
             ${g.monitor ? chipMonitor(g.monitor)  : ''}
+            ${chipCupo}
           </div>
           <div class="cm" style="font-size:11px;color:var(--sutil);font-weight:600;margin-top:2px">
             ${nAlumnos} alumno${nAlumnos!==1?'s':''}${horario ? ' · '+horario : ''}${g.dias ? ' · '+g.dias : ''}
@@ -589,7 +605,8 @@ function abrirNuevo() {
   document.getElementById('gr-id').value     = '';
   document.getElementById('gr-nombre').value = '';
   setDias('');
-  document.getElementById('gr-importe').value= '0';
+  document.getElementById('gr-importe').value = '0';
+  document.getElementById('gr-max-alumnos').value = '0';
   setHora('gr-inicio', '10:00');
   setHora('gr-fin',    '11:30');
   renderGrupoSelectores(_cfgNiveles[0] || '', '— Sin pista —', '— Sin monitor —');
@@ -601,7 +618,8 @@ function abrirEditar(g) {
   document.getElementById('gr-id').value      = g.id;
   document.getElementById('gr-nombre').value  = g.nombre;
   setDias(g.dias || '');
-  document.getElementById('gr-importe').value = g.importe_mensual != null ? g.importe_mensual : '0';
+  document.getElementById('gr-importe').value      = g.importe_mensual != null ? g.importe_mensual : '0';
+  document.getElementById('gr-max-alumnos').value  = g.max_alumnos    != null ? g.max_alumnos    : '0';
   setHora('gr-inicio', g.hora_inicio || '10:00');
   setHora('gr-fin',    g.hora_fin    || '11:30');
   renderGrupoSelectores(
@@ -626,6 +644,7 @@ async function guardar() {
     pista:            (() => { const v = cselGetValue('gr-pista-csel'); return v === '— Sin pista —' ? '' : v; })(),
     monitor:          (() => { const v = cselGetValue('gr-monitor-csel'); return v === '— Sin monitor —' ? '' : v; })(),
     importe_mensual:  parseFloat(document.getElementById('gr-importe').value) || 0,
+    max_alumnos:      parseInt(document.getElementById('gr-max-alumnos').value)  || 0,
   };
   try {
     await saveGrupo(grupo);
