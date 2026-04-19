@@ -239,7 +239,25 @@
           </div>
           <div class="fgrp">
             <div class="flbl">Hora</div>
-            <input class="finp" type="time" id="cl-hora">
+            <div class="hora-row">
+              <div class="hpick-wrap">
+                <div class="hpick-box" id="cl-h-box">
+                  <button class="hpick-btn" onclick="hpickStep('cl-h',-1)">‹</button>
+                  <div class="hpick-val" id="cl-h-val" onclick="hpickToggle('cl-h')">10<span class="hpick-val-arrow">∨</span></div>
+                  <button class="hpick-btn" onclick="hpickStep('cl-h',1)">›</button>
+                </div>
+                <div class="hpick-drop" id="cl-h-drop"></div>
+              </div>
+              <div class="hora-sep">:</div>
+              <div class="hpick-wrap">
+                <div class="hpick-box" id="cl-m-box">
+                  <button class="hpick-btn" onclick="hpickStep('cl-m',-1)">‹</button>
+                  <div class="hpick-val" id="cl-m-val" onclick="hpickToggle('cl-m')">00<span class="hpick-val-arrow">∨</span></div>
+                  <button class="hpick-btn" onclick="hpickStep('cl-m',1)">›</button>
+                </div>
+                <div class="hpick-drop" id="cl-m-drop"></div>
+              </div>
+            </div>
           </div>
         </div>
         <!-- Duración + Pista en la misma fila -->
@@ -522,8 +540,8 @@ function fillTipoClaseSelect(val) {
   );
 }
 
-function getHora(){return document.getElementById('cl-hora')?.value||'10:00';}
-function setHora(s){const el=document.getElementById('cl-hora');if(el&&s)el.value=s.slice(0,5);}
+function getHora(){return String(_hpick['cl-h'].val).padStart(2,'0')+':'+String(_hpick['cl-m'].val).padStart(2,'0')}
+function setHora(s){if(!s)return;const[h,m]=s.split(':').map(Number);_hpick['cl-h'].val=isNaN(h)?10:Math.min(23,Math.max(0,h));_hpick['cl-m'].val=isNaN(m)?0:Math.round(m/5)*5%60;_hpickRender('cl-h');_hpickRender('cl-m');}
 
 function filtrar(){
   const q=(document.getElementById('buscador')?.value||'').toLowerCase().trim();

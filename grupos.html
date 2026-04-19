@@ -184,11 +184,47 @@
       <div class="frow">
         <div class="fgrp">
           <div class="flbl">Hora inicio</div>
-          <input class="finp" type="time" id="gr-hora-inicio" value="10:00">
+          <div class="hpick-row">
+            <div class="hpick-wrap">
+              <div class="hpick-box" id="ini-h-box">
+                <button class="hpick-btn" onclick="hpickStep('ini-h',-1)">‹</button>
+                <div class="hpick-val" id="ini-h-val" onclick="hpickToggle('ini-h')">10<span class="hpick-val-arrow">∨</span></div>
+                <button class="hpick-btn" onclick="hpickStep('ini-h',1)">›</button>
+              </div>
+              <div class="hpick-drop" id="ini-h-drop"></div>
+            </div>
+            <div class="hpick-sep">:</div>
+            <div class="hpick-wrap">
+              <div class="hpick-box" id="ini-m-box">
+                <button class="hpick-btn" onclick="hpickStep('ini-m',-1)">‹</button>
+                <div class="hpick-val" id="ini-m-val" onclick="hpickToggle('ini-m')">00<span class="hpick-val-arrow">∨</span></div>
+                <button class="hpick-btn" onclick="hpickStep('ini-m',1)">›</button>
+              </div>
+              <div class="hpick-drop" id="ini-m-drop"></div>
+            </div>
+          </div>
         </div>
         <div class="fgrp">
           <div class="flbl">Hora fin</div>
-          <input class="finp" type="time" id="gr-hora-fin" value="11:30">
+          <div class="hpick-row">
+            <div class="hpick-wrap">
+              <div class="hpick-box" id="fin-h-box">
+                <button class="hpick-btn" onclick="hpickStep('fin-h',-1)">‹</button>
+                <div class="hpick-val" id="fin-h-val" onclick="hpickToggle('fin-h')">11<span class="hpick-val-arrow">∨</span></div>
+                <button class="hpick-btn" onclick="hpickStep('fin-h',1)">›</button>
+              </div>
+              <div class="hpick-drop" id="fin-h-drop"></div>
+            </div>
+            <div class="hpick-sep">:</div>
+            <div class="hpick-wrap">
+              <div class="hpick-box" id="fin-m-box">
+                <button class="hpick-btn" onclick="hpickStep('fin-m',-1)">‹</button>
+                <div class="hpick-val" id="fin-m-val" onclick="hpickToggle('fin-m')">30<span class="hpick-val-arrow">∨</span></div>
+                <button class="hpick-btn" onclick="hpickStep('fin-m',1)">›</button>
+              </div>
+              <div class="hpick-drop" id="fin-m-drop"></div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -572,8 +608,8 @@ function abrirNuevo() {
   setDias('');
   document.getElementById('gr-importe').value = '0';
   document.getElementById('gr-max-alumnos').value = '0';
-  document.getElementById('gr-hora-inicio').value = '10:00';
-  document.getElementById('gr-hora-fin').value    = '11:30';
+  setHora('ini', '10:00');
+  setHora('fin', '11:30');
   renderGrupoSelectores(_cfgNiveles[0] || '', '— Sin pista —', '— Sin monitor —');
   openSheet('sh-grupo');
 }
@@ -585,8 +621,8 @@ function abrirEditar(g) {
   setDias(g.dias || '');
   document.getElementById('gr-importe').value      = g.importe_mensual != null ? g.importe_mensual : '0';
   document.getElementById('gr-max-alumnos').value  = g.max_alumnos    != null ? g.max_alumnos    : '0';
-  document.getElementById('gr-hora-inicio').value = (g.hora_inicio || '10:00').slice(0,5);
-  document.getElementById('gr-hora-fin').value    = (g.hora_fin    || '11:30').slice(0,5);
+  setHora('ini', g.hora_inicio || '10:00');
+  setHora('fin', g.hora_fin    || '11:30');
   renderGrupoSelectores(
     g.nivel   || _cfgNiveles[0] || '',
     g.pista   || '— Sin pista —',
@@ -604,8 +640,8 @@ async function guardar() {
     nombre,
     nivel:            cselGetValue('gr-nivel-csel'),
     dias:             getDias(),
-    hora_inicio:      document.getElementById('gr-hora-inicio').value || '10:00',
-    hora_fin:         document.getElementById('gr-hora-fin').value    || '11:30',
+    hora_inicio:      getHora('gr-inicio'),
+    hora_fin:         getHora('gr-fin'),
     pista:            (() => { const v = cselGetValue('gr-pista-csel'); return v === '— Sin pista —' ? '' : v; })(),
     monitor:          (() => { const v = cselGetValue('gr-monitor-csel'); return v === '— Sin monitor —' ? '' : v; })(),
     importe_mensual:  parseFloat(document.getElementById('gr-importe').value) || 0,
